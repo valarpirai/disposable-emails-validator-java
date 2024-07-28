@@ -1,11 +1,13 @@
 plugins {
-    kotlin("jvm") version "2.0.0"
+    kotlin("jvm") version "1.5.31"
+    `maven-publish`
 }
 
-group = "com.disposable-emails"
-version = "1.0-SNAPSHOT"
+group = "org.disposableemail"
+version = "0.0.1"
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -16,6 +18,18 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
-kotlin {
-    jvmToolchain(11)
+//kotlin {
+//    jvmToolchain(11)
+//}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = group as String
+            artifactId = "org.disposable"
+            version = version
+
+            from(components["java"])
+        }
+    }
 }
