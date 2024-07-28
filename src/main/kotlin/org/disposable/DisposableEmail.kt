@@ -174,33 +174,17 @@ class Trie {
     }
 
     internal inner class Node {
-        private var nodes: Array<Node?> = arrayOfNulls(38)
-        private var isEnd: Boolean = false
-
         /**
          * Supports [a-z0-9-.]
          *
          * return index for our Array
          */
-        private fun getCode(char: Char): Int {
-            val code = char.code
-            if (code in 97..122)
-                // 0-25
-                return code - 97
-            else if (code in 48..57)
-                // 26-35
-                return code - 22
-            else if (code == 45 || code == 46)
-                // 36 || 37
-                return code - 9
-            else {
-                throw UnsupportedEncodingException("Unsupported value ($char) present in domain name")
-            }
-        }
+        private var nodes = mutableMapOf<Char, Node?>()
+        private var isEnd = false
 
         internal fun insert(word: String, idx: Int) {
             if (idx >= word.length) return
-            val i = getCode(word[idx])
+            val i = word[idx]
             if (nodes[i] == null) {
                 nodes[i] = Node()
             }
@@ -211,7 +195,7 @@ class Trie {
 
         fun search(word: String, idx: Int): Boolean {
             if (idx >= word.length) return false
-            val node = nodes[getCode(word[idx])] ?: return false
+            val node = nodes[word[idx]] ?: return false
             if (idx == word.length - 1 && node.isEnd) return true
 
             return node.search(word, idx + 1)
@@ -219,7 +203,7 @@ class Trie {
 
         fun startsWith(prefix: String, idx: Int): Boolean {
             if (idx >= prefix.length) return false
-            val node = nodes[getCode(prefix[idx])] ?: return false
+            val node = nodes[prefix[idx]] ?: return false
             if (idx == prefix.length - 1) return true
 
             return node.startsWith(prefix, idx + 1)
