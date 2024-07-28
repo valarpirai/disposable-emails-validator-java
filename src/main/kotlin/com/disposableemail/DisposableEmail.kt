@@ -1,10 +1,15 @@
 package com.disposableemail
 
 import com.disposableemail.Configurations.Companion.EMAIL_PATTERN
+import com.disposableemail.Configurations.Companion.GENERIC_DOMAIN_LISTS_TXT
 import java.io.*
-import java.net.HttpURLConnection
 import java.net.URL
-import java.util.regex.Matcher
+import java.nio.channels.Channels
+import java.nio.channels.ReadableByteChannel
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.nio.file.Paths
 import kotlin.reflect.KFunction1
 
 
@@ -106,27 +111,44 @@ class DisposableEmail private constructor() {
     }
 
     fun refreshDisposableDomains() {
-//        Download latest domain list
-//        Create new Trie object
-//        Swap new trie with old Trie
+        // Download latest domain list
+        val updatedTrie = Trie()
+        val tmpFile = "/tmp/generic-domains.txt"
+        downloadUsingNIO(GENERIC_DOMAIN_LISTS_TXT, tmpFile)
+
+        val filePath = Paths.get(tmpFile)
+        val charset: Charset = StandardCharsets.UTF_8
+        var error = false
+        // Create new Trie object
+        try {
+            Files.newBufferedReader(filePath, charset).use { bufferedReader ->
+                var line: String?
+                while ((bufferedReader.readLine().also { line = it }) != null) {
+                    line?.let { updatedTrie.insert(it) }
+                }
+            }
+        } catch (_: IOException) {
+            error = true
+        }
+
+        // Swap new trie with old Trie
+        if (!error) {
+            trieData = updatedTrie
+            println("Data refresh completed..")
+        } else {
+            println("Data refresh failed..")
+        }
     }
 
-    fun fetchDomainsWithTxt(urlPath: String?): Set<String> {
-        val disposableEmailDomainsSet: MutableSet<String> = HashSet()
-        try {
-            val url = URL(urlPath)
-            val con: HttpURLConnection = url.openConnection() as HttpURLConnection
-            con.setRequestMethod("GET")
-            val `in` = BufferedReader(InputStreamReader(con.getInputStream()))
-            var inputLine: String
-            while ((`in`.readLine().also { inputLine = it }) != null) {
-                disposableEmailDomainsSet.add(inputLine)
-            }
-            `in`.close()
-            return disposableEmailDomainsSet
-        } catch (ioe: IOException) {
-            return disposableEmailDomainsSet
-        }
+    @Throws(IOException::class)
+    private fun downloadUsingNIO(urlStr: String, file: String) {
+        println("Downloading latest file..")
+        val url = URL(urlStr)
+        val rbc: ReadableByteChannel = Channels.newChannel(url.openStream())
+        val fos = FileOutputStream(file)
+        fos.channel.transferFrom(rbc, 0, Long.MAX_VALUE)
+        fos.close()
+        rbc.close()
     }
 }
 
