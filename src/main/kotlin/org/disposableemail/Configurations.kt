@@ -1,4 +1,4 @@
-package org.disposable;
+package org.disposableemail;
 
 import java.util.regex.Pattern
 

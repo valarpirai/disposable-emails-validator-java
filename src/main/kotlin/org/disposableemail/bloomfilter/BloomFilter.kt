@@ -1,4 +1,4 @@
-package org.disposable.bloomfilter
+package org.disposableemail.bloomfilter
 
 interface BloomFilter<T> {
     /**

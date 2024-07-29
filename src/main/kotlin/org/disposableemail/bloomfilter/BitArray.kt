@@ -1,4 +1,4 @@
-package org.disposable.bloomfilter
+package org.disposableemail.bloomfilter
 
 class BitArray(data: LongArray?) {
     /**

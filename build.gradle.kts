@@ -3,7 +3,7 @@ plugins {
     `maven-publish`
 }
 
-group = "org.disposableemail"
+group = "org.valarpirai"
 version = "0.0.1"
 
 repositories {
@@ -26,7 +26,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = group as String
-            artifactId = "org.disposable"
+            artifactId = "org.disposable-email"
             version = version
 
             from(components["java"])

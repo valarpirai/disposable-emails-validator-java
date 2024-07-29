@@ -1,8 +1,8 @@
-package org.disposable
+package org.disposableemail
 
-import org.disposable.Configurations.Companion.EMAIL_PATTERN
-import org.disposable.Configurations.Companion.GENERIC_DOMAIN_LISTS_TXT
-import org.disposable.bloomfilter.InMemoryBloomFilter
+import org.disposableemail.Configurations.Companion.EMAIL_PATTERN
+import org.disposableemail.Configurations.Companion.GENERIC_DOMAIN_LISTS_TXT
+import org.disposableemail.bloomfilter.InMemoryBloomFilter
 import java.io.*
 import java.net.URL
 import java.nio.channels.Channels

@@ -1,4 +1,4 @@
-package org.disposable.bloomfilter
+package org.disposableemail.bloomfilter
 
 import org.apache.commons.codec.digest.MurmurHash3
 import kotlin.math.abs
