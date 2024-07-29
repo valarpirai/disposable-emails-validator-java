@@ -7,12 +7,11 @@ group = "org.disposableemail"
 version = "0.0.1"
 
 repositories {
-    mavenLocal()
     mavenCentral()
 }
 
 dependencies {
-    implementation("com.google.guava:guava:32.1.3-jre")
+    implementation("commons-codec:commons-codec:1.17.1")
     testImplementation(kotlin("test"))
 }
 

@@ -2,6 +2,7 @@ package org.disposable
 
 import org.disposable.Configurations.Companion.EMAIL_PATTERN
 import org.disposable.Configurations.Companion.GENERIC_DOMAIN_LISTS_TXT
+import org.disposable.bloomfilter.InMemoryBloomFilter
 import java.io.*
 import java.net.URL
 import java.nio.channels.Channels
@@ -14,7 +15,13 @@ import kotlin.reflect.KFunction1
 
 
 class DisposableEmail private constructor() {
-    private var trieData = Trie()
+    private val maxDomains = 200_000
+    private val falsePositivePercentage = 0.01
+    private var bloomFilter = InMemoryBloomFilter(
+        maxDomains,
+        falsePositivePercentage
+    )
+
     private var whiteListedDomains = mutableSetOf("")
     private var blackListedDomains = mutableSetOf("")
 
@@ -76,7 +83,7 @@ class DisposableEmail private constructor() {
         } else if(blackListedDomains.contains(domain)) {
             return true
         }
-        return trieData.search(domain)
+        return bloomFilter.contains(domain)
     }
 
     /**
@@ -90,7 +97,7 @@ class DisposableEmail private constructor() {
     }
 
     private fun buildDomainDataSet(domain: String) {
-        trieData.insert(domain.lowercase())
+        bloomFilter.add(domain)
     }
 
     private fun readDomainsFromResourceFile() {
@@ -112,32 +119,36 @@ class DisposableEmail private constructor() {
 
     fun refreshDisposableDomains() {
         // Download latest domain list
-        val updatedTrie = Trie()
         val tmpFile = "/tmp/generic-domains.txt"
         downloadUsingNIO(GENERIC_DOMAIN_LISTS_TXT, tmpFile)
 
         val filePath = Paths.get(tmpFile)
         val charset: Charset = StandardCharsets.UTF_8
         var error = false
-        // Create new Trie object
+        val tempBloomFilter = InMemoryBloomFilter(
+            maxDomains,
+            falsePositivePercentage
+        )
+        // Build
         try {
             Files.newBufferedReader(filePath, charset).use { bufferedReader ->
                 var line: String?
                 while ((bufferedReader.readLine().also { line = it }) != null) {
-                    line?.let { updatedTrie.insert(it) }
+                    line?.let { tempBloomFilter.add(it) }
                 }
             }
         } catch (_: IOException) {
             error = true
         }
 
-        // Swap new trie with old Trie
+        // Swap
         if (!error) {
-            trieData = updatedTrie
+            bloomFilter = tempBloomFilter
             println("Data refresh completed..")
         } else {
             println("Data refresh failed..")
         }
+        System.gc()
     }
 
     @Throws(IOException::class)
@@ -149,64 +160,5 @@ class DisposableEmail private constructor() {
         fos.channel.transferFrom(rbc, 0, Long.MAX_VALUE)
         fos.close()
         rbc.close()
-    }
-}
-
-class Trie {
-    private var root: Node
-    var size = 0
-
-    init {
-        root = Node()
-    }
-
-    fun insert(word: String) {
-        root.insert(word, 0)
-        size++
-    }
-
-    fun search(word: String): Boolean {
-        return root.search(word, 0)
-    }
-
-    fun startsWith(prefix: String): Boolean {
-        return root.startsWith(prefix, 0)
-    }
-
-    internal inner class Node {
-        /**
-         * Supports [a-z0-9-.]
-         *
-         * return index for our Array
-         */
-        private var nodes = mutableMapOf<Char, Node?>()
-        private var isEnd = false
-
-        internal fun insert(word: String, idx: Int) {
-            if (idx >= word.length) return
-            val i = word[idx]
-            if (nodes[i] == null) {
-                nodes[i] = Node()
-            }
-
-            if (idx == word.length - 1) nodes[i]!!.isEnd = true
-            nodes[i]!!.insert(word, idx + 1)
-        }
-
-        fun search(word: String, idx: Int): Boolean {
-            if (idx >= word.length) return false
-            val node = nodes[word[idx]] ?: return false
-            if (idx == word.length - 1 && node.isEnd) return true
-
-            return node.search(word, idx + 1)
-        }
-
-        fun startsWith(prefix: String, idx: Int): Boolean {
-            if (idx >= prefix.length) return false
-            val node = nodes[prefix[idx]] ?: return false
-            if (idx == prefix.length - 1) return true
-
-            return node.startsWith(prefix, idx + 1)
-        }
     }
 }
