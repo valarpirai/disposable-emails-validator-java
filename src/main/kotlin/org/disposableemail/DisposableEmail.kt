@@ -109,19 +109,17 @@ class DisposableEmail private constructor() {
     /**
      * Load Disposable Email domains from ClassPath resource TXT file
      */
+    @Throws(IOException::class)
     private fun loadDomainsFromResourceFile() {
         val classLoader = javaClass.classLoader
         val inputStream = classLoader.getResourceAsStream(Configurations.DOMAIN_RESOURCE_FILE_NAME)
-        inputStream?.let { readFromInputStream(it, ::addDomainToFilter) }
-    }
-
-    @Throws(IOException::class)
-    private fun readFromInputStream(inputStream: InputStream, function: KFunction1<String, Unit>) {
-        BufferedReader(InputStreamReader(inputStream)).use { br
-            ->
-            var line: String?
-            while ((br.readLine().also { line = it }) != null) {
-                line?.let { function.invoke(it) }
+        inputStream?.use {
+            BufferedReader(InputStreamReader(it)).use { br
+                ->
+                var line: String?
+                while ((br.readLine().also { line = it }) != null) {
+                    line?.let { addDomainToFilter(it) }
+                }
             }
         }
     }
@@ -143,11 +141,10 @@ class DisposableEmail private constructor() {
 
         val `in`: InputStream? = response.body?.byteStream()
         if (`in` != null) {
-            val reader = BufferedReader(InputStreamReader(`in`))
-            var line = reader.readLine()
-            while (line != null) {
-                tempBloomFilter.add(line)
-                line = reader.readLine()
+            val br = BufferedReader(InputStreamReader(`in`))
+            var line: String?
+            while ((br.readLine().also { line = it }) != null) {
+                line?.let { tempBloomFilter.add(it) }
             }
 
             // Swap
