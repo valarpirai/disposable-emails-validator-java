@@ -143,10 +143,11 @@ class DisposableEmail private constructor() {
 
         val `in`: InputStream? = response.body?.byteStream()
         if (`in` != null) {
-            var line = ""
             val reader = BufferedReader(InputStreamReader(`in`))
-            while ((reader.readLine().also { line = it }) != null) {
+            var line = reader.readLine()
+            while (line != null) {
                 tempBloomFilter.add(line)
+                line = reader.readLine()
             }
 
             // Swap
