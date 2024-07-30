@@ -57,8 +57,8 @@ class DisposableEmail private constructor() {
             getInstance().blackListedDomains.remove(domain)
         }
 
-        fun refreshDisposableDomains() {
-            getInstance().refreshDisposableDomains()
+        fun refreshDisposableDomains(performGc: Boolean = false) {
+            getInstance().refreshDisposableDomains(performGc)
         }
     }
 
@@ -117,7 +117,7 @@ class DisposableEmail private constructor() {
         }
     }
 
-    fun refreshDisposableDomains() {
+    fun refreshDisposableDomains(performGc: Boolean) {
         // Download latest domain list
         val tmpFile = "/tmp/generic-domains.txt"
         downloadUsingNIO(GENERIC_DOMAIN_LISTS_TXT, tmpFile)
@@ -148,7 +148,8 @@ class DisposableEmail private constructor() {
         } else {
             println("Data refresh failed..")
         }
-        System.gc()
+        if (performGc)
+            System.gc()
     }
 
     @Throws(IOException::class)
