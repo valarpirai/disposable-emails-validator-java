@@ -7,18 +7,18 @@ class DisposableEmailTest {
 
     @Test
     fun testDisposableEmail() {
-        Assertions.assertTrue(DisposableEmail.isDisposable("yopmail.com"))
-        Assertions.assertTrue(DisposableEmail.isDisposable("mailsac.com"))
-        Assertions.assertFalse(DisposableEmail.isDisposable("mailsac.co"))
-        Assertions.assertFalse(DisposableEmail.isDisposable("gmail.co"))
+        Assertions.assertTrue(DisposableEmail.isDisposableEmail("yopmail.com"))
+        Assertions.assertTrue(DisposableEmail.isDisposableEmail("mailsac.com"))
+        Assertions.assertFalse(DisposableEmail.isDisposableEmail("mailsac.co"))
+        Assertions.assertFalse(DisposableEmail.isDisposableEmail("gmail.co"))
     }
 
     @Test
     fun testRefreshData() {
-        Assertions.assertFalse(DisposableEmail.isDisposable("zzz.com"))
-//        DisposableEmail.refreshDisposableDomains()
-        Assertions.assertTrue(DisposableEmail.isDisposable("yopmail.com"))
-        Assertions.assertTrue(DisposableEmail.isDisposable("mailsac.com"))
-        Assertions.assertFalse(DisposableEmail.isDisposable("mailsac.co"))
+        Assertions.assertFalse(DisposableEmail.isDisposableEmail("zzz.com"))
+        DisposableEmail.refreshDisposableDomains()
+        Assertions.assertTrue(DisposableEmail.isDisposableEmail("yopmail.com"))
+        Assertions.assertTrue(DisposableEmail.isDisposableEmail("mailsac.com"))
+        Assertions.assertFalse(DisposableEmail.isDisposableEmail("mailsac.co"))
     }
 }

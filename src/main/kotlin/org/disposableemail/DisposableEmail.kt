@@ -1,18 +1,17 @@
 package org.disposableemail
 
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.disposableemail.Configurations.Companion.EMAIL_PATTERN
 import org.disposableemail.Configurations.Companion.GENERIC_DOMAIN_LISTS_TXT
 import org.disposableemail.bloomfilter.InMemoryBloomFilter
-import java.io.*
-import java.net.URL
-import java.nio.channels.Channels
-import java.nio.channels.ReadableByteChannel
-import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Paths
+import org.disposableemail.dnsoverhttps.DNS_RESOLVER_TYPE
+import org.disposableemail.dnsoverhttps.DnsResolver
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStream
+import java.io.InputStreamReader
 import kotlin.reflect.KFunction1
-
 
 class DisposableEmail private constructor() {
     private val maxDomains = 200_000
@@ -33,12 +32,20 @@ class DisposableEmail private constructor() {
                 return instance as DisposableEmail
 
             instance = DisposableEmail()
-            instance!!.initialize()
+            instance!!.loadDomainsFromResourceFile()
             return instance as DisposableEmail
         }
 
-        fun isDisposable(email: String): Boolean {
-            return getInstance().isDisposable(email)
+        /**
+         * Verify the given email address is a Disposable mail box. Also, check the given email actually exists
+         *
+         */
+        fun isDisposableEmail(email: String, checkDns: Boolean = false, dnsResolver: DNS_RESOLVER_TYPE = DNS_RESOLVER_TYPE.CLOUD_FLARE): Boolean {
+            val domain = getInstance().extractDomain(email)
+            if (getInstance().isDisposable(domain)) {
+                return true
+            }
+            return checkDns && !DnsResolver.verifyMxRecordPresent(domain, dnsResolver)
         }
 
         fun addDomainToWhitelist(domain: String) {
@@ -62,28 +69,27 @@ class DisposableEmail private constructor() {
         }
     }
 
-    private fun initialize() {
-        readDomainsFromResourceFile()
-    }
-
     /**
      * By providing email address, it returns whether the domain is a disposable domain
      *
      * @param email - Email Address
      */
-    fun isDisposable(email: String): Boolean {
-        val lastIndex: Int = email.lastIndexOf('@')
-        var domain: String = email.lowercase()
-        if (lastIndex >= 0) {
-            domain = email.substring(lastIndex + 1).lowercase()
-        }
-
+    fun isDisposable(domain: String): Boolean {
         if (whiteListedDomains.contains(domain)) {
             return false
         } else if(blackListedDomains.contains(domain)) {
             return true
         }
         return bloomFilter.contains(domain)
+    }
+
+    private fun extractDomain(email: String): String {
+        val lastIndex: Int = email.lastIndexOf('@')
+        var domain: String = email.lowercase()
+        if (lastIndex >= 0) {
+            domain = email.substring(lastIndex + 1).lowercase()
+        }
+        return domain
     }
 
     /**
@@ -96,14 +102,17 @@ class DisposableEmail private constructor() {
         return !EMAIL_PATTERN.matcher(email).matches()
     }
 
-    private fun buildDomainDataSet(domain: String) {
+    private fun addDomainToFilter(domain: String) {
         bloomFilter.add(domain)
     }
 
-    private fun readDomainsFromResourceFile() {
+    /**
+     * Load Disposable Email domains from ClassPath resource TXT file
+     */
+    private fun loadDomainsFromResourceFile() {
         val classLoader = javaClass.classLoader
         val inputStream = classLoader.getResourceAsStream(Configurations.DOMAIN_RESOURCE_FILE_NAME)
-        inputStream?.let { readFromInputStream(it, ::buildDomainDataSet) }
+        inputStream?.let { readFromInputStream(it, ::addDomainToFilter) }
     }
 
     @Throws(IOException::class)
@@ -117,49 +126,35 @@ class DisposableEmail private constructor() {
         }
     }
 
+    /**
+     *  Download latest disposable emails from URL, then build BloomFilter and use it.
+     */
     fun refreshDisposableDomains(performGc: Boolean) {
-        // Download latest domain list
-        val tmpFile = "/tmp/generic-domains.txt"
-        downloadUsingNIO(GENERIC_DOMAIN_LISTS_TXT, tmpFile)
-
-        val filePath = Paths.get(tmpFile)
-        val charset: Charset = StandardCharsets.UTF_8
-        var error = false
         val tempBloomFilter = InMemoryBloomFilter(
             maxDomains,
             falsePositivePercentage
         )
-        // Build
-        try {
-            Files.newBufferedReader(filePath, charset).use { bufferedReader ->
-                var line: String?
-                while ((bufferedReader.readLine().also { line = it }) != null) {
-                    line?.let { tempBloomFilter.add(it) }
-                }
-            }
-        } catch (_: IOException) {
-            error = true
-        }
 
-        // Swap
-        if (!error) {
+        // Download latest domain list
+        val client = OkHttpClient()
+        val request = Request.Builder().url(GENERIC_DOMAIN_LISTS_TXT)
+            .build()
+        val response = client.newCall(request).execute()
+
+        val `in`: InputStream? = response.body?.byteStream()
+        if (`in` != null) {
+            var line = ""
+            val reader = BufferedReader(InputStreamReader(`in`))
+            while ((reader.readLine().also { line = it }) != null) {
+                tempBloomFilter.add(line)
+            }
+
+            // Swap
             bloomFilter = tempBloomFilter
             println("Data refresh completed..")
-        } else {
-            println("Data refresh failed..")
         }
+        response.body?.close()
         if (performGc)
             System.gc()
-    }
-
-    @Throws(IOException::class)
-    private fun downloadUsingNIO(urlStr: String, file: String) {
-        println("Downloading latest file..")
-        val url = URL(urlStr)
-        val rbc: ReadableByteChannel = Channels.newChannel(url.openStream())
-        val fos = FileOutputStream(file)
-        fos.channel.transferFrom(rbc, 0, Long.MAX_VALUE)
-        fos.close()
-        rbc.close()
     }
 }

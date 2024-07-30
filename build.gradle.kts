@@ -12,10 +12,13 @@ version = "0.0.1"
 repositories {
     mavenCentral()
 }
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+}
 
 dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("commons-codec:commons-codec:1.17.1")
     testImplementation(kotlin("test"))
 }
@@ -23,14 +26,16 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
 //kotlin {
 //    jvmToolchain(11)
 //}
 
 tasks.withType<ShadowJar>() {
-    relocate("com.google.gson", "com.valarpirai.shaded.com.google.gson")
-    relocate("okhttp3", "com.valarpirai.shaded.okhttp3")
-    relocate("org.apache.commons", "com.valarpirai.shaded.org.apache.commons")
+    relocate("com.google.gson", "org.valarpirai.shaded.com.google.gson")
+    relocate("okhttp3", "org.valarpirai.shaded.okhttp3")
+    relocate("okio", "org.valarpirai.shaded.okio")
+    relocate("org.apache.commons", "org.valarpirai.shaded.org.apache.commons")
 }
 
 publishing {

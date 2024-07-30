@@ -10,18 +10,29 @@ class DnsResolver {
         private val client = OkHttpClient()
         private val gson: Gson = Gson()
 
-
-        fun resolveEmailDomain(domain: String): Boolean {
+        fun verifyMxRecordPresent(domain: String, dnsResolver: DNS_RESOLVER_TYPE): Boolean {
             val request = Request.Builder()
-                .url(Configurations.CLOUD_FLARE_DNS_RESOLVER_URL)
+                .url(getResolverUrl(dnsResolver))
                 .build();
 
             val response = client.newCall(request).execute()
             response.body?.let {
-                val response = gson.fromJson(it.string(), DnsResponse::class.java)
-                return response.Answer != null
+                val resp = gson.fromJson(it.string(), DnsResponse::class.java)
+                return !resp.Answer.isNullOrEmpty()
             }
             return false
         }
+
+        private fun getResolverUrl(dnsResolver: DNS_RESOLVER_TYPE): String {
+            return if (dnsResolver == DNS_RESOLVER_TYPE.CLOUD_FLARE)
+                Configurations.CLOUD_FLARE_DNS_RESOLVER_URL
+            else
+                Configurations.GOOGLE_DNS_RESOLVER_URL
+        }
     }
+}
+
+enum class DNS_RESOLVER_TYPE {
+    CLOUD_FLARE,
+    GOOGLE
 }
