@@ -39,6 +39,16 @@ tasks.withType<ShadowJar>() {
 }
 
 publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/valarpirai/disposable-email")
+            credentials {
+                username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+            }
+        }
+    }
     publications {
         create<MavenPublication>("maven") {
             groupId = group as String
