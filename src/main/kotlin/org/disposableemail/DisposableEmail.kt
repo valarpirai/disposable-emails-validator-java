@@ -11,7 +11,6 @@ import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
-import kotlin.reflect.KFunction1
 
 class DisposableEmail private constructor() {
     private val maxDomains = 200_000
@@ -40,7 +39,7 @@ class DisposableEmail private constructor() {
          * Verify the given email address is a Disposable mail box. Also, check the given email actually exists
          *
          */
-        fun isDisposableEmail(email: String, checkDns: Boolean = false, dnsResolver: DNS_RESOLVER_TYPE = DNS_RESOLVER_TYPE.CLOUD_FLARE): Boolean {
+        fun isDisposableEmail(email: String, checkDns: Boolean = true, dnsResolver: DNS_RESOLVER_TYPE = DNS_RESOLVER_TYPE.CLOUD_FLARE): Boolean {
             val domain = getInstance().extractDomain(email)
             if (getInstance().isDisposable(domain)) {
                 return true
@@ -64,7 +63,10 @@ class DisposableEmail private constructor() {
             getInstance().blackListedDomains.remove(domain)
         }
 
-        fun refreshDisposableDomains(performGc: Boolean = false) {
+        /**
+         * Download latest disposable email domain list from Github
+         */
+        fun refreshDisposableDomains(performGc: Boolean = true) {
             getInstance().refreshDisposableDomains(performGc)
         }
     }
@@ -72,7 +74,7 @@ class DisposableEmail private constructor() {
     /**
      * By providing email address, it returns whether the domain is a disposable domain
      *
-     * @param email - Email Address
+     * @param domain - domain of a Email Address
      */
     fun isDisposable(domain: String): Boolean {
         if (whiteListedDomains.contains(domain)) {
@@ -149,7 +151,6 @@ class DisposableEmail private constructor() {
 
             // Swap
             bloomFilter = tempBloomFilter
-            println("Data refresh completed..")
         }
         response.body?.close()
         if (performGc)

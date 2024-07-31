@@ -4,20 +4,25 @@ import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.disposableemail.Configurations
+import java.io.IOException
+import kotlin.jvm.Throws
 
 class DnsResolver {
     companion object {
         private val client = OkHttpClient()
         private val gson: Gson = Gson()
 
+        @Throws(IOException::class)
         fun verifyMxRecordPresent(domain: String, dnsResolver: DNS_RESOLVER_TYPE): Boolean {
+            val url = "${getResolverUrl(dnsResolver)}?type=MX&name=$domain"
             val request = Request.Builder()
-                .url(getResolverUrl(dnsResolver))
+                .url(url)
+                .addHeader("Accept", "application/dns-json")
                 .build();
-
             val response = client.newCall(request).execute()
             response.body?.let {
-                val resp = gson.fromJson(it.string(), DnsResponse::class.java)
+                val body = it.string()
+                val resp = gson.fromJson(body, DnsResponse::class.java)
                 return !resp.Answer.isNullOrEmpty()
             }
             return false
