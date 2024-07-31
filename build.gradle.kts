@@ -52,7 +52,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = group as String
-            artifactId = "org.disposable-email"
+            artifactId = "disposable-email"
             version = version
 
             from(components["java"])
