@@ -41,10 +41,11 @@ class DisposableEmail private constructor() {
          */
         fun isDisposableEmail(email: String, checkDns: Boolean = true, dnsResolver: DNS_RESOLVER_TYPE = DNS_RESOLVER_TYPE.CLOUD_FLARE): Boolean {
             val domain = getInstance().extractDomain(email)
-            if (getInstance().isDisposable(domain)) {
-                return true
+
+            if (!getInstance().isDisposable(domain)) {
+                return checkDns && DnsResolver.verifyMxRecordPresent(domain, dnsResolver)
             }
-            return checkDns && !DnsResolver.verifyMxRecordPresent(domain, dnsResolver)
+            return true
         }
 
         fun addDomainToWhitelist(domain: String) {
