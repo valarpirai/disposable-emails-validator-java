@@ -34,5 +34,5 @@ DisposableEmail.refreshDisposableDomains()
 ### Tech details
 - We are using BloomFilter a space-efficient probabilistic data structure
 - We are using DNS over HTTPS to verify the MX Records
-  - We have support CloudFlare and Google DNS resolver support
+  - CloudFlare and Google DNS resolvers are support
   
