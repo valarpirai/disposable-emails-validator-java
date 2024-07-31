@@ -13,7 +13,7 @@ class DnsResolver {
         private val gson: Gson = Gson()
 
         @Throws(IOException::class)
-        fun verifyMxRecordPresent(domain: String, dnsResolver: DNS_RESOLVER_TYPE): Boolean {
+        fun isMxRecordPresent(domain: String, dnsResolver: DNS_RESOLVER_TYPE): Boolean {
             val url = "${getResolverUrl(dnsResolver)}?type=MX&name=$domain"
             val request = Request.Builder()
                 .url(url)

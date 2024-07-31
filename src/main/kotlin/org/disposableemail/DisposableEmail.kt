@@ -43,9 +43,13 @@ class DisposableEmail private constructor() {
             val domain = getInstance().extractDomain(email)
 
             if (!getInstance().isDisposable(domain)) {
-                return checkDns && DnsResolver.verifyMxRecordPresent(domain, dnsResolver)
+                return checkDns && !isValidMailDomain(domain, dnsResolver)
             }
             return true
+        }
+
+        private fun isValidMailDomain(domain: String, dnsResolver: DNS_RESOLVER_TYPE): Boolean {
+            return DnsResolver.isMxRecordPresent(domain, dnsResolver)
         }
 
         fun addDomainToWhitelist(domain: String) {
