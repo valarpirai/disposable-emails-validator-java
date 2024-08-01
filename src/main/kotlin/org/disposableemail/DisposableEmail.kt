@@ -126,8 +126,7 @@ class DisposableEmail private constructor() {
         val inputStream = javaClass.classLoader.getResourceAsStream(Configurations.DOMAIN_RESOURCE_FILE_NAME)
         if (inputStream != null) {
             InputStreamReader(inputStream).use { reader ->
-                val result = Gson().fromJson(reader, LongArray::class.java)
-                return result
+                return Gson().fromJson(reader, LongArray::class.java)
             }
         }
         return null
