@@ -4,7 +4,7 @@ class BitArray(data: LongArray?) {
     /**
      * The bit storage
      */
-    private val data: LongArray
+    var data: LongArray
 
     /**
      * The current enabled/set bit count

@@ -6,13 +6,17 @@ import kotlin.math.ln
 import kotlin.math.pow
 
 class InMemoryBloomFilter(
-    override val expectedInsertionCount: Int, override val falsePositivePercentage: Double
+    override val data: LongArray?, override val expectedInsertionCount: Int, override val falsePositivePercentage: Double
 ) : BloomFilter<String> {
 
+    private var totalItems = 0
     private val bitSize = optimalBitSize()
     private val hashCount = hashFunctionCount()
-    private val bucket: BitArray = BitArray(bitSize)
-    private var totalItems = 0
+    private val bucket: BitArray =
+        if (data != null)
+            BitArray(data)
+        else
+            BitArray(bitSize)
 
     private fun optimalBitSize(): Int {
         return (-(expectedInsertionCount * ln(falsePositivePercentage) / ln(2.0).pow(2))).toInt()

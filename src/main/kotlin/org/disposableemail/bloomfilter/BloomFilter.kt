@@ -16,6 +16,8 @@ interface BloomFilter<T> {
      */
     fun contains(value: T): Boolean
 
+    val data: LongArray?
+
     val expectedInsertionCount: Int
 
     val falsePositivePercentage: Double

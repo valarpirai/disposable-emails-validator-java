@@ -7,41 +7,41 @@ class DisposableEmailTest {
 
     @Test
     fun test_DisposableEmail() {
-        Assertions.assertTrue(DisposableEmail.isDisposableEmail("yopmail.com"))
-        Assertions.assertTrue(DisposableEmail.isDisposableEmail("mailsac.com"))
-        Assertions.assertTrue(DisposableEmail.isDisposableEmail("mailsac.co"))
-        Assertions.assertFalse(DisposableEmail.isDisposableEmail("gmail.co"))
+        Assertions.assertTrue(DisposableEmail.isDisposableEmailDomain("yopmail.com"))
+        Assertions.assertTrue(DisposableEmail.isDisposableEmailDomain("mailsac.com"))
+        Assertions.assertFalse(DisposableEmail.isDisposableEmailDomain("mailsac.co"))
+        Assertions.assertFalse(DisposableEmail.isDisposableEmailDomain("gmail.co"))
     }
 
     @Test
     fun test_disposable_domain() {
-        Assertions.assertTrue(DisposableEmail.isDisposableEmail("yopmail.com"))
+        Assertions.assertTrue(DisposableEmail.isDisposableEmailDomain("yopmail.com"))
     }
 
     @Test
     fun test_invalid_domain() {
-        Assertions.assertTrue(DisposableEmail.isDisposableEmail("invaliddomain12.com"))
-    }
-
-    @Test
-    fun test_invalid_domain_dont_check_dns() {
-        Assertions.assertFalse(DisposableEmail.isDisposableEmail("invaliddomain12.com", false))
+        Assertions.assertFalse(DisposableEmail.isDisposableEmailDomain("invaliddomain12.com"))
     }
 
     @Test
     fun test_valid_domain() {
-        Assertions.assertFalse(DisposableEmail.isDisposableEmail("gmail.com"))
+        Assertions.assertFalse(DisposableEmail.isDisposableEmailDomain("gmail.com"))
     }
+
+//    Whitelist
+//    Blacklist
+//    Validate DNS case
+//  getEmailDomainDetails
 
     @Test
     fun test_valid_domain_with_no_dns_verification() {
-        Assertions.assertFalse(DisposableEmail.isDisposableEmail("gmail.com", false))
+        Assertions.assertFalse(DisposableEmail.isDisposableEmailDomain("gmail.com"))
     }
 
     @Test
     fun test_RefreshData() {
-        Assertions.assertTrue(DisposableEmail.isDisposableEmail("yopmail.com"))
+        Assertions.assertTrue(DisposableEmail.isDisposableEmailDomain("yopmail.com"))
         DisposableEmail.refreshDisposableDomains()
-        Assertions.assertTrue(DisposableEmail.isDisposableEmail("yopmail.com"))
+        Assertions.assertTrue(DisposableEmail.isDisposableEmailDomain("yopmail.com"))
     }
 }

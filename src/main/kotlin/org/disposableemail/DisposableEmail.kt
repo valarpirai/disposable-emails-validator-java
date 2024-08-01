@@ -1,5 +1,6 @@
 package org.disposableemail
 
+import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.disposableemail.Configurations.Companion.EMAIL_PATTERN
@@ -16,6 +17,7 @@ class DisposableEmail private constructor() {
     private val maxDomains = 200_000
     private val falsePositivePercentage = 0.01
     private var bloomFilter = InMemoryBloomFilter(
+        loadDomainDataFromResourceFile(),
         maxDomains,
         falsePositivePercentage
     )
@@ -31,21 +33,24 @@ class DisposableEmail private constructor() {
                 return instance as DisposableEmail
 
             instance = DisposableEmail()
-            instance!!.loadDomainsFromResourceFile()
             return instance as DisposableEmail
+        }
+
+        fun getEmailDomainDetails(email: String, dnsResolver: DNS_RESOLVER_TYPE = DNS_RESOLVER_TYPE.CLOUD_FLARE): Map<String, Boolean> {
+            val domain = getInstance().extractDomain(email)
+            return mapOf(
+                "DISPOSABLE_DOMAIN" to getInstance().isDisposable(domain),
+                "DNS_MX_PRESENT" to isValidMailDomain(domain, dnsResolver)
+            )
         }
 
         /**
          * Verify the given email address is a Disposable mail box. Also, check the given email actually exists
          *
          */
-        fun isDisposableEmail(email: String, checkDns: Boolean = true, dnsResolver: DNS_RESOLVER_TYPE = DNS_RESOLVER_TYPE.CLOUD_FLARE): Boolean {
+        fun isDisposableEmailDomain(email: String): Boolean {
             val domain = getInstance().extractDomain(email)
-
-            if (!getInstance().isDisposable(domain)) {
-                return checkDns && !isValidMailDomain(domain, dnsResolver)
-            }
-            return true
+            return getInstance().isDisposable(domain)
         }
 
         private fun isValidMailDomain(domain: String, dnsResolver: DNS_RESOLVER_TYPE): Boolean {
@@ -117,18 +122,15 @@ class DisposableEmail private constructor() {
      * Load Disposable Email domains from ClassPath resource TXT file
      */
     @Throws(IOException::class)
-    private fun loadDomainsFromResourceFile() {
-        val classLoader = javaClass.classLoader
-        val inputStream = classLoader.getResourceAsStream(Configurations.DOMAIN_RESOURCE_FILE_NAME)
-        inputStream?.use {
-            BufferedReader(InputStreamReader(it)).use { br
-                ->
-                var line: String?
-                while ((br.readLine().also { line = it }) != null) {
-                    line?.let { addDomainToFilter(it) }
-                }
+    private fun loadDomainDataFromResourceFile(): LongArray? {
+        val inputStream = javaClass.classLoader.getResourceAsStream(Configurations.DOMAIN_RESOURCE_FILE_NAME)
+        if (inputStream != null) {
+            InputStreamReader(inputStream).use { reader ->
+                val result = Gson().fromJson(reader, LongArray::class.java)
+                return result
             }
         }
+        return null
     }
 
     /**
@@ -136,6 +138,7 @@ class DisposableEmail private constructor() {
      */
     fun refreshDisposableDomains(performGc: Boolean) {
         val tempBloomFilter = InMemoryBloomFilter(
+            null,
             maxDomains,
             falsePositivePercentage
         )
