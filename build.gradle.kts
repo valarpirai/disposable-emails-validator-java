@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "org.valarpirai"
-version = "1.0.1"
+version = "1.0.2"
 
 repositories {
     mavenCentral()
@@ -26,10 +26,6 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
-
-//kotlin {
-//    jvmToolchain(11)
-//}
 
 tasks.withType<ShadowJar>() {
     relocate("com.google.gson", "org.valarpirai.shaded.com.google.gson")
