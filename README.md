@@ -14,9 +14,6 @@ The following method will download latest disposable email list from `https://di
 DisposableEmail.refreshDisposableDomains()
 ```
 
-The input can be email address or Just domain name.
-
-
 Get DNS and disposable details of a email domain
 ```
 DisposableEmail.getDomainDetails("gmail.com")
@@ -61,6 +58,24 @@ Use different DNS resolver
 ```
 DisposableEmail.isValidMailDomain("hello@gmail.com", DNS_RESOLVER_TYPE.CLOUD_FLARE) -> true
 DisposableEmail.isValidMailDomain("hello@gmail.com", DNS_RESOLVER_TYPE.GOOGLE) -> true
+```
+
+Whitelist Domains
+```
+DisposableEmail.addDomainToWhitelist("mailsac.com")
+DisposableEmail.isDisposable("hello@mailsac.com") -> false
+
+DisposableEmail.removeDomainFromWhitelist("mailsac.com")
+DisposableEmail.isDisposable("mailsac.com") -> true
+```
+
+Blacklist Domains
+```
+DisposableEmail.addDomainToBlacklist("gmail.com")
+DisposableEmail.isDisposable("hello@gmail.com") -> true
+
+DisposableEmail.removeDomainFromBlacklist("gmail.com")
+DisposableEmail.isDisposable("gmail.com") -> true
 ```
 
 ### How it works?

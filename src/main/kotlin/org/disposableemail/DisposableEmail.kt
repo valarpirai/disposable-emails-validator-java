@@ -53,7 +53,7 @@ class DisposableEmail private constructor() {
             return getInstance().isDisposable(domain)
         }
 
-        private fun isValidMailDomain(domain: String, dnsResolver: DNS_RESOLVER_TYPE): Boolean {
+        fun isValidMailDomain(domain: String, dnsResolver: DNS_RESOLVER_TYPE = DNS_RESOLVER_TYPE.CLOUD_FLARE): Boolean {
             return DnsResolver.isMxRecordPresent(domain, dnsResolver)
         }
 
@@ -65,11 +65,11 @@ class DisposableEmail private constructor() {
             getInstance().blackListedDomains.add(domain)
         }
 
-        fun removeDomainToWhitelist(domain: String) {
+        fun removeDomainFromWhitelist(domain: String) {
             getInstance().whiteListedDomains.remove(domain)
         }
 
-        fun removeDomainToBlacklist(domain: String) {
+        fun removeDomainFromBlacklist(domain: String) {
             getInstance().blackListedDomains.remove(domain)
         }
 

@@ -1,5 +1,6 @@
 package org.disposableemail
 
+import org.disposableemail.dnsoverhttps.DNS_RESOLVER_TYPE
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -28,20 +29,57 @@ class DisposableEmailTest {
         Assertions.assertFalse(DisposableEmail.isDisposable("gmail.com"))
     }
 
-//    Whitelist
-//    Blacklist
-//    Validate DNS case
-//  getDomainDetails
+    @Test
+    fun test_add_remove_blacklist_domain() {
+        Assertions.assertFalse(DisposableEmail.isDisposable("gmail.com"))
+        DisposableEmail.addDomainToBlacklist("gmail.com")
+        Assertions.assertTrue(DisposableEmail.isDisposable("gmail.com"))
+        DisposableEmail.removeDomainFromBlacklist("gmail.com")
+        Assertions.assertFalse(DisposableEmail.isDisposable("gmail.com"))
+    }
 
     @Test
-    fun test_valid_domain_with_no_dns_verification() {
-        Assertions.assertFalse(DisposableEmail.isDisposable("gmail.com"))
+    fun test_add_remove_whitelist_domain() {
+        Assertions.assertTrue(DisposableEmail.isDisposable("mailsac.com"))
+        DisposableEmail.addDomainToWhitelist("mailsac.com")
+        Assertions.assertFalse(DisposableEmail.isDisposable("mailsac.com"))
+        DisposableEmail.removeDomainFromWhitelist("mailsac.com")
+        Assertions.assertTrue(DisposableEmail.isDisposable("mailsac.com"))
+    }
+
+    @Test
+    fun test_get_domain_details() {
+        var data = DisposableEmail.getDomainDetails("mailsac.com")
+        Assertions.assertEquals(data["DISPOSABLE_DOMAIN"], true)
+        Assertions.assertEquals(data["DNS_MX_PRESENT"], true)
+
+        data = DisposableEmail.getDomainDetails("gmail.com")
+        Assertions.assertEquals(data["DISPOSABLE_DOMAIN"], false)
+        Assertions.assertEquals(data["DNS_MX_PRESENT"], true)
+
+        data = DisposableEmail.getDomainDetails("nonexisting123.com")
+        Assertions.assertEquals(data["DISPOSABLE_DOMAIN"], false)
+        Assertions.assertEquals(data["DNS_MX_PRESENT"], false)
+    }
+
+    @Test
+    fun test_check_dns_entry() {
+        Assertions.assertTrue(DisposableEmail.isValidMailDomain("gmail.com"))
+        Assertions.assertTrue(DisposableEmail.isValidMailDomain("gmail.com", DNS_RESOLVER_TYPE.GOOGLE))
+        Assertions.assertTrue(DisposableEmail.isValidMailDomain("mailsac.com"))
+        Assertions.assertFalse(DisposableEmail.isValidMailDomain("nonexisting123.com"))
     }
 
     @Test
     fun test_RefreshData() {
         Assertions.assertTrue(DisposableEmail.isDisposable("yopmail.com"))
-        DisposableEmail.refreshDisposableDomains()
+        Assertions.assertTrue(DisposableEmail.isDisposable("mailsac.com"))
+        Assertions.assertFalse(DisposableEmail.isDisposable("gmail.com"))
+
+        DisposableEmail.refreshDisposableDomains() // Downloads latest data
+
         Assertions.assertTrue(DisposableEmail.isDisposable("yopmail.com"))
+        Assertions.assertTrue(DisposableEmail.isDisposable("mailsac.com"))
+        Assertions.assertFalse(DisposableEmail.isDisposable("gmail.com"))
     }
 }
