@@ -36,7 +36,7 @@ class DisposableEmail private constructor() {
             return instance as DisposableEmail
         }
 
-        fun getEmailDomainDetails(email: String, dnsResolver: DNS_RESOLVER_TYPE = DNS_RESOLVER_TYPE.CLOUD_FLARE): Map<String, Boolean> {
+        fun getDomainDetails(email: String, dnsResolver: DNS_RESOLVER_TYPE = DNS_RESOLVER_TYPE.CLOUD_FLARE): Map<String, Boolean> {
             val domain = getInstance().extractDomain(email)
             return mapOf(
                 "DISPOSABLE_DOMAIN" to getInstance().isDisposable(domain),
@@ -48,7 +48,7 @@ class DisposableEmail private constructor() {
          * Verify the given email address is a Disposable mail box. Also, check the given email actually exists
          *
          */
-        fun isDisposableEmailDomain(email: String): Boolean {
+        fun isDisposable(email: String): Boolean {
             val domain = getInstance().extractDomain(email)
             return getInstance().isDisposable(domain)
         }
