@@ -28,6 +28,8 @@ tasks.test {
 }
 
 tasks.withType<ShadowJar>() {
+    // Minimizing a shadow JAR
+    minimize()
     relocate("com.google.gson", "org.valarpirai.shaded.com.google.gson")
     relocate("okhttp3", "org.valarpirai.shaded.okhttp3")
     relocate("okio", "org.valarpirai.shaded.okio")
