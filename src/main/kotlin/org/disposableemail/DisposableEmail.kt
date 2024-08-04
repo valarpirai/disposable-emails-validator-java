@@ -40,7 +40,7 @@ class DisposableEmail private constructor() {
             val domain = getInstance().extractDomain(email)
             return mapOf(
                 "DISPOSABLE_DOMAIN" to getInstance().isDisposable(domain),
-                "DNS_MX_PRESENT" to isValidMailDomain(domain, dnsResolver)
+                "DNS_MX_PRESENT" to hasValidMailDomain(domain, dnsResolver)
             )
         }
 
@@ -53,7 +53,7 @@ class DisposableEmail private constructor() {
             return getInstance().isDisposable(domain)
         }
 
-        fun isValidMailDomain(domain: String, dnsResolver: DNS_RESOLVER_TYPE = DNS_RESOLVER_TYPE.CLOUD_FLARE): Boolean {
+        fun hasValidMailDomain(domain: String, dnsResolver: DNS_RESOLVER_TYPE = DNS_RESOLVER_TYPE.CLOUD_FLARE): Boolean {
             return DnsResolver.isMxRecordPresent(domain, dnsResolver)
         }
 

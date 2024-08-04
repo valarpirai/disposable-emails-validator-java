@@ -64,10 +64,10 @@ class DisposableEmailTest {
 
     @Test
     fun test_check_dns_entry() {
-        Assertions.assertTrue(DisposableEmail.isValidMailDomain("gmail.com"))
-        Assertions.assertTrue(DisposableEmail.isValidMailDomain("gmail.com", DNS_RESOLVER_TYPE.GOOGLE))
-        Assertions.assertTrue(DisposableEmail.isValidMailDomain("mailsac.com"))
-        Assertions.assertFalse(DisposableEmail.isValidMailDomain("nonexisting123.com"))
+        Assertions.assertTrue(DisposableEmail.hasValidMailDomain("gmail.com"))
+        Assertions.assertTrue(DisposableEmail.hasValidMailDomain("gmail.com", DNS_RESOLVER_TYPE.GOOGLE))
+        Assertions.assertTrue(DisposableEmail.hasValidMailDomain("mailsac.com"))
+        Assertions.assertFalse(DisposableEmail.hasValidMailDomain("nonexisting123.com"))
     }
 
     @Test

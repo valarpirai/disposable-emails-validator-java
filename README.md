@@ -39,14 +39,16 @@ DisposableEmail.getDomainDetails("gmail.com")
   "DISPOSABLE_DOMAIN": false,
   "DNS_MX_PRESENT": true
 }
-
+```
+```
 DisposableEmail.getDomainDetails("yopmail.com")
 
 {
   "DISPOSABLE_DOMAIN": true,
   "DNS_MX_PRESENT": true
 }
-
+```
+```
 DisposableEmail.getDomainDetails("nonexisting123.com")
 
 {
@@ -63,18 +65,18 @@ DisposableEmail.isDisposable("hello@mailsac.com") -> true
 
 Disposable domain with valid DNS MX Record
 ```
-DisposableEmail.isValidMailDomain("hello@mailsac.com") -> true
+DisposableEmail.hasValidMailDomain("hello@mailsac.com") -> true
 ```
 
 Valid domain without DNS MX Record
 ```
-DisposableEmail.isValidMailDomain("god.com") -> false
+DisposableEmail.hasValidMailDomain("god.com") -> false
 ```
 
 Use different DNS resolver
 ```
-DisposableEmail.isValidMailDomain("hello@gmail.com", DNS_RESOLVER_TYPE.CLOUD_FLARE) -> true
-DisposableEmail.isValidMailDomain("hello@gmail.com", DNS_RESOLVER_TYPE.GOOGLE) -> true
+DisposableEmail.hasValidMailDomain("hello@gmail.com", DNS_RESOLVER_TYPE.CLOUD_FLARE) -> true
+DisposableEmail.hasValidMailDomain("hello@gmail.com", DNS_RESOLVER_TYPE.GOOGLE) -> true
 ```
 
 Whitelist Domains
