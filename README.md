@@ -16,7 +16,7 @@ Use it to validate email addresses on sign up, or just to see how many real emai
 <dependency>
   <groupId>org.valarpirai</groupId>
   <artifactId>disposable-email</artifactId>
-  <version>1.0.2</version>
+  <version>{version}</version>
 </dependency>
 ```
 
@@ -75,8 +75,8 @@ DisposableEmail.hasValidMailDomain("god.com") -> false
 
 Use different DNS resolver
 ```
-DisposableEmail.hasValidMailDomain("hello@gmail.com", DNS_RESOLVER_TYPE.CLOUD_FLARE) -> true
-DisposableEmail.hasValidMailDomain("hello@gmail.com", DNS_RESOLVER_TYPE.GOOGLE) -> true
+DisposableEmail.hasValidMailDomain("hello@gmail.com", DnsResolverType.CLOUD_FLARE) -> true
+DisposableEmail.hasValidMailDomain("hello@gmail.com", DnsResolverType.GOOGLE) -> true
 ```
 
 Whitelist Domains

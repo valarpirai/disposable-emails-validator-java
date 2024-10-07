@@ -6,8 +6,8 @@ import okhttp3.Request
 import org.disposableemail.Configurations.Companion.EMAIL_PATTERN
 import org.disposableemail.Configurations.Companion.GENERIC_DOMAIN_LISTS_TXT
 import org.disposableemail.bloomfilter.InMemoryBloomFilter
-import org.disposableemail.dnsoverhttps.DNS_RESOLVER_TYPE
-import org.disposableemail.dnsoverhttps.DnsResolver
+import org.disposableemail.dnsoverhttps.DnsResolverType
+import org.disposableemail.dnsoverhttps.Resolver
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
@@ -36,7 +36,7 @@ class DisposableEmail private constructor() {
             return instance as DisposableEmail
         }
 
-        fun getDomainDetails(email: String, dnsResolver: DNS_RESOLVER_TYPE = DNS_RESOLVER_TYPE.CLOUD_FLARE): Map<String, Boolean> {
+        fun getDomainDetails(email: String, dnsResolver: DnsResolverType = DnsResolverType.CLOUD_FLARE): Map<String, Boolean> {
             val domain = getInstance().extractDomain(email)
             return mapOf(
                 "DISPOSABLE_DOMAIN" to getInstance().isDisposable(domain),
@@ -53,8 +53,8 @@ class DisposableEmail private constructor() {
             return getInstance().isDisposable(domain)
         }
 
-        fun hasValidMailDomain(domain: String, dnsResolver: DNS_RESOLVER_TYPE = DNS_RESOLVER_TYPE.CLOUD_FLARE): Boolean {
-            return DnsResolver.isMxRecordPresent(domain, dnsResolver)
+        fun hasValidMailDomain(domain: String, dnsResolver: DnsResolverType = DnsResolverType.CLOUD_FLARE): Boolean {
+            return Resolver.isMxRecordPresent(domain, dnsResolver)
         }
 
         fun addDomainToWhitelist(domain: String) {

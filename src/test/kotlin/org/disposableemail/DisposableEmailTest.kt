@@ -1,6 +1,6 @@
 package org.disposableemail
 
-import org.disposableemail.dnsoverhttps.DNS_RESOLVER_TYPE
+import org.disposableemail.dnsoverhttps.DnsResolverType
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -65,7 +65,7 @@ class DisposableEmailTest {
     @Test
     fun test_check_dns_entry() {
         Assertions.assertTrue(DisposableEmail.hasValidMailDomain("gmail.com"))
-        Assertions.assertTrue(DisposableEmail.hasValidMailDomain("gmail.com", DNS_RESOLVER_TYPE.GOOGLE))
+        Assertions.assertTrue(DisposableEmail.hasValidMailDomain("gmail.com", DnsResolverType.GOOGLE))
         Assertions.assertTrue(DisposableEmail.hasValidMailDomain("mailsac.com"))
         Assertions.assertFalse(DisposableEmail.hasValidMailDomain("nonexisting123.com"))
     }
