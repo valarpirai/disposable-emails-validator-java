@@ -1,6 +1,8 @@
 package org.disposableemail
 
-import com.google.gson.Gson
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.disposableemail.Configurations.Companion.EMAIL_PATTERN
@@ -123,13 +125,15 @@ class DisposableEmail private constructor() {
      */
     @Throws(IOException::class)
     private fun loadDomainDataFromResourceFile(): LongArray? {
+        val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+        val jsonAdapter: JsonAdapter<LongArray> = moshi.adapter<LongArray>(LongArray::class.java)
         val inputStream = javaClass.classLoader.getResourceAsStream(Configurations.DOMAIN_RESOURCE_FILE_NAME)
-        if (inputStream != null) {
-            InputStreamReader(inputStream).use { reader ->
-                return Gson().fromJson(reader, LongArray::class.java)
-            }
+        var data: LongArray? = null
+        inputStream?.bufferedReader()?.use {
+            val txt = it.readText()
+            data = jsonAdapter.fromJson(txt)
         }
-        return null
+        return data
     }
 
     /**
@@ -144,8 +148,7 @@ class DisposableEmail private constructor() {
 
         // Download latest domain list
         val client = OkHttpClient()
-        val request = Request.Builder().url(GENERIC_DOMAIN_LISTS_TXT)
-            .build()
+        val request = Request.Builder().url(GENERIC_DOMAIN_LISTS_TXT).build()
         val response = client.newCall(request).execute()
 
         val `in`: InputStream? = response.body?.byteStream()

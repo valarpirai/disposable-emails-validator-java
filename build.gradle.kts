@@ -25,9 +25,10 @@ java {
 }
 
 dependencies {
-    implementation("com.google.code.gson:gson:2.10.1")
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
-    implementation("org.valarpirai:dns-over-https:1.0.1")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.moshi:moshi:1.15.1")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
+    implementation("org.valarpirai:dns-over-https:1.0.2:all")
     implementation("commons-codec:commons-codec:1.17.1")
     testImplementation(kotlin("test"))
 }
@@ -39,9 +40,9 @@ tasks.test {
 tasks.withType<ShadowJar>() {
     // Minimizing a shadow JAR
     minimize()
-    relocate("com.google.gson", "org.valarpirai.shaded.com.google.gson")
     relocate("okhttp3", "org.valarpirai.shaded.okhttp3")
     relocate("okio", "org.valarpirai.shaded.okio")
+    relocate("com.squareup.moshi", "org.valarpirai.shaded.com.squareup.moshi")
     relocate("org.apache.commons", "org.valarpirai.shaded.org.apache.commons")
 }
 
