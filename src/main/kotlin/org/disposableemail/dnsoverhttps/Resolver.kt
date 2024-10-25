@@ -1,7 +1,7 @@
 package org.disposableemail.dnsoverhttps
 
-import org.doh.pojo.DnsQuery
-import org.doh.pojo.RecordType
+import org.disposableemail.dnsoverhttps.pojo.DnsQuery
+import org.disposableemail.dnsoverhttps.pojo.RecordType
 
 class Resolver {
     companion object {

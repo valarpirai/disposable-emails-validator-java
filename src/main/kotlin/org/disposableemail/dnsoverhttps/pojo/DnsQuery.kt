@@ -1,4 +1,4 @@
-package org.doh.pojo
+package org.disposableemail.dnsoverhttps.pojo
 
 data class DnsQuery(val name: String, val type: RecordType) {}
 

@@ -10,8 +10,8 @@ import org.disposableemail.dnsoverhttps.Constants.Companion.ACCEPT
 import org.disposableemail.dnsoverhttps.Constants.Companion.APPLICATION_DNS_JSON
 import org.disposableemail.dnsoverhttps.Constants.Companion.NAME
 import org.disposableemail.dnsoverhttps.Constants.Companion.TYPE
-import org.doh.pojo.DnsQuery
-import org.doh.pojo.DnsResponse
+import org.disposableemail.dnsoverhttps.pojo.DnsQuery
+import org.disposableemail.dnsoverhttps.pojo.DnsResponse
 
 abstract class DnsResolver {
     private val client = OkHttpClient()

@@ -1,4 +1,4 @@
-package org.doh.pojo
+package org.disposableemail.dnsoverhttps.pojo
 
 import java.io.Serializable
 
