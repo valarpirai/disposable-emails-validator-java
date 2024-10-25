@@ -1,8 +1,5 @@
 package org.disposableemail.dnsoverhttps
 
-import org.doh.CloudFlareDnsResolver
-import org.doh.DnsResolver
-import org.doh.GoogleDnsResolver
 import org.doh.pojo.DnsQuery
 import org.doh.pojo.RecordType
 

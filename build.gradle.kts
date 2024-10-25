@@ -28,7 +28,6 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.moshi:moshi:1.15.1")
     implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
-    implementation("org.valarpirai:dns-over-https:1.0.2:all")
     implementation("commons-codec:commons-codec:1.17.1")
     testImplementation(kotlin("test"))
 }
