@@ -8,7 +8,7 @@ Use it to validate email addresses on sign up, or just to see how many real emai
 <repository>
   <id>github</id>
   <name>GitHub Packages</name>
-  <url>https://<github_user>:<github_personal_access_token>@maven.pkg.github.com/valarpirai/disposable-emails</url>
+  <url>https://<github_user>:<github_personal_access_token>@maven.pkg.github.com/valarpirai/disposable-emails-validator-java</url>
 </repository>
 ```
 
