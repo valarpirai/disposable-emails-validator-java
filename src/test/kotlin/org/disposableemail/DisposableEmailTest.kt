@@ -50,16 +50,16 @@ class DisposableEmailTest {
     @Test
     fun test_get_domain_details() {
         var data = DisposableEmail.getDomainDetails("mailsac.com")
-        Assertions.assertEquals(data["DISPOSABLE_DOMAIN"], true)
-        Assertions.assertEquals(data["DNS_MX_PRESENT"], true)
+        Assertions.assertEquals(data.disposableDomain, true)
+        Assertions.assertEquals(data.mxRecordPresent, true)
 
         data = DisposableEmail.getDomainDetails("gmail.com")
-        Assertions.assertEquals(data["DISPOSABLE_DOMAIN"], false)
-        Assertions.assertEquals(data["DNS_MX_PRESENT"], true)
+        Assertions.assertEquals(data.disposableDomain, false)
+        Assertions.assertEquals(data.mxRecordPresent, true)
 
         data = DisposableEmail.getDomainDetails("nonexisting123.com")
-        Assertions.assertEquals(data["DISPOSABLE_DOMAIN"], false)
-        Assertions.assertEquals(data["DNS_MX_PRESENT"], false)
+        Assertions.assertEquals(data.disposableDomain, false)
+        Assertions.assertEquals(data.mxRecordPresent, false)
     }
 
     @Test

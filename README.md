@@ -31,30 +31,24 @@ The following method will download latest disposable email list from [here](http
 DisposableEmail.refreshDisposableDomains()
 ```
 
-Get DNS and disposable details of a email domain
+Get DNS and disposable details of a email domain. Response `DomainDetails`
 ```
-DisposableEmail.getDomainDetails("gmail.com")
+domainDetails = DisposableEmail.getDomainDetails("gmail.com")
 
-{
-  "DISPOSABLE_DOMAIN": false,
-  "DNS_MX_PRESENT": true
-}
+domainDetails.disposableDomain -> false
+domainDetails.mxRecordPresent -> true
 ```
 ```
-DisposableEmail.getDomainDetails("yopmail.com")
+domainDetails = DisposableEmail.getDomainDetails("yopmail.com")
 
-{
-  "DISPOSABLE_DOMAIN": true,
-  "DNS_MX_PRESENT": true
-}
+domainDetails.disposableDomain -> true
+domainDetails.mxRecordPresent -> true
 ```
 ```
-DisposableEmail.getDomainDetails("nonexisting123.com")
+domainDetails = DisposableEmail.getDomainDetails("nonexisting123.com")
 
-{
-  "DISPOSABLE_DOMAIN": false,
-  "DNS_MX_PRESENT": false
-}
+domainDetails.disposableDomain -> false
+domainDetails.mxRecordPresent -> false
 ```
 
 Check whether a given email address is disposable address (local check)

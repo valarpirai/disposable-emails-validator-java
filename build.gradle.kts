@@ -10,13 +10,6 @@ group = "org.valarpirai"
 version = "1.0.5"
 
 repositories {
-    maven {
-        url = uri("https://maven.pkg.github.com/valarpirai/dns-over-https")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
-        }
-    }
     mavenCentral()
 }
 
@@ -49,7 +42,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/valarpirai/disposable-emails")
+            url = uri("https://maven.pkg.github.com/valarpirai/disposable-emails-validator-java")
             credentials {
                 username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
                 password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")

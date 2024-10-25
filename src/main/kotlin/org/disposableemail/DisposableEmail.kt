@@ -5,8 +5,8 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.disposableemail.Configurations.Companion.EMAIL_PATTERN
-import org.disposableemail.Configurations.Companion.GENERIC_DOMAIN_LISTS_TXT
+import org.disposableemail.Constants.Companion.EMAIL_PATTERN
+import org.disposableemail.Constants.Companion.GENERIC_DOMAIN_LISTS_TXT
 import org.disposableemail.bloomfilter.InMemoryBloomFilter
 import org.disposableemail.dnsoverhttps.DnsResolverType
 import org.disposableemail.dnsoverhttps.Resolver
@@ -38,12 +38,9 @@ class DisposableEmail private constructor() {
             return instance as DisposableEmail
         }
 
-        fun getDomainDetails(email: String, dnsResolver: DnsResolverType = DnsResolverType.CLOUD_FLARE): Map<String, Boolean> {
+        fun getDomainDetails(email: String, dnsResolver: DnsResolverType = DnsResolverType.CLOUD_FLARE): DomainDetails {
             val domain = getInstance().extractDomain(email)
-            return mapOf(
-                "DISPOSABLE_DOMAIN" to getInstance().isDisposable(domain),
-                "DNS_MX_PRESENT" to hasValidMailDomain(domain, dnsResolver)
-            )
+            return DomainDetails(getInstance().isDisposable(domain), hasValidMailDomain(domain, dnsResolver))
         }
 
         /**
@@ -127,7 +124,7 @@ class DisposableEmail private constructor() {
     private fun loadDomainDataFromResourceFile(): LongArray? {
         val moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
         val jsonAdapter: JsonAdapter<LongArray> = moshi.adapter<LongArray>(LongArray::class.java)
-        val inputStream = javaClass.classLoader.getResourceAsStream(Configurations.DOMAIN_RESOURCE_FILE_NAME)
+        val inputStream = javaClass.classLoader.getResourceAsStream(Constants.DOMAIN_RESOURCE_FILE_NAME)
         var data: LongArray? = null
         inputStream?.bufferedReader()?.use {
             val txt = it.readText()
@@ -167,3 +164,5 @@ class DisposableEmail private constructor() {
             System.gc()
     }
 }
+
+data class DomainDetails(val disposableDomain: Boolean, val mxRecordPresent: Boolean) {}

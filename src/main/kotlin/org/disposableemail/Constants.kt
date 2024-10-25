@@ -2,7 +2,7 @@ package org.disposableemail;
 
 import java.util.regex.Pattern
 
-class Configurations {
+class Constants {
 
   companion object {
     val EMAIL_PATTERN: Pattern = Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
