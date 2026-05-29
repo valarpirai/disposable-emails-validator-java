@@ -3,26 +3,15 @@ package org.disposableemail.dnsoverhttps
 import org.disposableemail.dnsoverhttps.pojo.DnsQuery
 import org.disposableemail.dnsoverhttps.pojo.RecordType
 
-class Resolver {
-    companion object {
+enum class DnsResolverType { CLOUD_FLARE, GOOGLE }
 
-        fun isMxRecordPresent(domain: String, dnsResolver: DnsResolverType): Boolean {
-            val query = DnsQuery(domain, RecordType.MX)
-            val resp = getResolver(dnsResolver).resolve(query)!!
-            return !resp.Answer.isNullOrEmpty()
-        }
-
-        private fun getResolver(dnsResolver: DnsResolverType): DnsResolver {
-            return if (dnsResolver == DnsResolverType.CLOUD_FLARE) {
-                GoogleDnsResolver()
-            } else {
-                CloudFlareDnsResolver()
-            }
-        }
+object Resolver {
+    fun isMxRecordPresent(domain: String, dnsResolver: DnsResolverType): Boolean {
+        val query = DnsQuery(domain, RecordType.MX)
+        val resp = getResolver(dnsResolver).resolve(query) ?: return false
+        return !resp.Answer.isNullOrEmpty()
     }
-}
 
-enum class DnsResolverType {
-    CLOUD_FLARE,
-    GOOGLE
+    private fun getResolver(dnsResolver: DnsResolverType): DnsResolver =
+        if (dnsResolver == DnsResolverType.CLOUD_FLARE) CloudFlareDnsResolver() else GoogleDnsResolver()
 }

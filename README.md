@@ -60,6 +60,14 @@ DisposableEmail.hasValidMailDomain("hello@gmail.com", DnsResolverType.CLOUD_FLAR
 DisposableEmail.hasValidMailDomain("hello@gmail.com", DnsResolverType.GOOGLE)
 ```
 
+### Validate email format
+
+```kotlin
+DisposableEmail.validEmail("user@example.com") // true
+DisposableEmail.validEmail("notanemail")        // false
+DisposableEmail.validEmail("")                  // false
+```
+
 ### Whitelist a domain
 
 ```kotlin
