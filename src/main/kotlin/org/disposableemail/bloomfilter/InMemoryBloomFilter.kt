@@ -1,64 +1,64 @@
 package org.disposableemail.bloomfilter
 
 import org.apache.commons.codec.digest.MurmurHash3
-import kotlin.math.abs
 import kotlin.math.ln
 import kotlin.math.pow
 
 class InMemoryBloomFilter(
-    override val data: LongArray?, override val expectedInsertionCount: Int, override val falsePositivePercentage: Double
+    serialisedData: LongArray?,
+    val expectedInsertionCount: Int,
+    val falsePositivePercentage: Double
 ) : BloomFilter<String> {
 
     private var totalItems = 0
-    private val bitSize = optimalBitSize()
-    private val hashCount = hashFunctionCount()
-    private val bucket: BitArray =
-        if (data != null)
-            BitArray(data)
-        else
-            BitArray(bitSize)
 
-    private fun optimalBitSize(): Int {
-        return (-(expectedInsertionCount * ln(falsePositivePercentage) / ln(2.0).pow(2))).toInt()
-    }
+    // Always derive bitSize from the formula so the modulus is identical whether we
+    // are building fresh or restoring from serialised data. The BitArray may have a
+    // few extra unused bits at the end, which is safe because indices are always < bitSize.
+    private val bitSize: Int = optimalBitSize()
+    private val hashCount: Int = hashFunctionCount()
+    private val bucket: BitArray = if (serialisedData != null) BitArray(serialisedData) else BitArray(bitSize)
 
-    private fun hashFunctionCount(): Int {
-        return ((bitSize / expectedInsertionCount) * ln(2.0)).toInt()
-    }
+    override val data: LongArray get() = bucket.data
+
+    private fun optimalBitSize(): Int =
+        (-(expectedInsertionCount * ln(falsePositivePercentage) / ln(2.0).pow(2))).toInt()
+
+    private fun hashFunctionCount(): Int =
+        ((bitSize.toDouble() / expectedInsertionCount) * ln(2.0)).toInt()
 
     override fun add(value: String): Boolean {
-        this.totalItems++
+        totalItems++
+        val bytes = value.toByteArray()
         for (i in 1..hashCount) {
-            val index = abs(MurmurHash3.hash32x86(value.toByteArray(), 0, value.length, i) % this.bitSize)
+            val index = hashIndex(bytes, i)
             bucket.set(index)
         }
         return true
     }
 
     override fun addAll(values: Collection<String>?): Boolean {
-        if (values != null) {
-            for (value in values) {
-                add(value)
-            }
-        }
+        values?.forEach { add(it) }
         return true
     }
 
     override fun contains(value: String): Boolean {
+        val bytes = value.toByteArray()
         for (i in 1..hashCount) {
-            val index = abs(MurmurHash3.hash32x86(value.toByteArray(), 0, value.length, i) % this.bitSize)
-            if (!bucket.get(index))
-                return false
+            if (!bucket.get(hashIndex(bytes, i))) return false
         }
         return true
     }
 
-    // TODO: Calculate
+    // Casting to Long before abs() avoids the abs(Int.MIN_VALUE) overflow while
+    // keeping the same index formula the serialised resource file was built with.
+    private fun hashIndex(bytes: ByteArray, seed: Int): Int =
+        (Math.abs(MurmurHash3.hash32x86(bytes, 0, bytes.size, seed).toLong()) % bitSize).toInt()
+
     override fun getFalsePositiveProbability(numInsertedElements: Int): Double {
-        return 0.0
+        val exponent = -hashCount.toDouble() * numInsertedElements / bitSize
+        return Math.pow(1 - Math.exp(exponent), hashCount.toDouble())
     }
 
-    override fun getInsertedItemsCount(): Int {
-        return totalItems
-    }
+    override fun getInsertedItemsCount(): Int = totalItems
 }
